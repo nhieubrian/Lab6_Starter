@@ -5,13 +5,17 @@
 const recipes = [
   'https://introweb.tech/assets/json/ghostCookies.json',
   'https://introweb.tech/assets/json/birthdayCake.json',
-  'https://introweb.tech/assets/json/chocolateChip.json'
+  'https://introweb.tech/assets/json/chocolateChip.json',
+  'assets/recipes/brownie.json',
+  'assets/recipes/chicken-nugs.json',
+  'assets/recipes/pumpkin-roll.json'
 ];
 
 // Once all of the recipes that were specified above have been fetched, their
 // data will be added to this object below. You may use whatever you like for the
 // keys as long as it's unique, one suggestion might but the URL itself
 const recipeData = {}
+let showStatus;
 
 window.addEventListener('DOMContentLoaded', init);
 
@@ -24,6 +28,9 @@ async function init() {
     console.log('Recipe fetch unsuccessful');
     return;
   };
+
+  showStatus = false;
+
   // Add the first three recipe cards to the page
   createRecipeCards();
   // Make the "Show more" button functional
@@ -43,7 +50,23 @@ async function fetchRecipes() {
     // in the recipes folder and fetch them from there. You'll need to add their paths to the recipes array.
 
     // Part 1 Expose - TODO
+
+    for(let i = 0; i < recipes.length; i++){
+      fetch(recipes[i])
+      .then(response => response.json())
+      .then(data => {
+        recipeData[i] = data;
+        if(i + 1 == recipes.length){
+          resolve(true);
+        }
+      })
+      .catch((error) => {
+        console.error('Error fetching: ', error);
+        reject(false);
+      })
+    }
   });
+
 }
 
 function createRecipeCards() {
@@ -54,6 +77,13 @@ function createRecipeCards() {
   // show any others you've added when the user clicks on the "Show more" button.
 
   // Part 1 Expose - TODO
+  let main = document.querySelector('main');
+  for(let i = 0; i < 3; i++){
+    let element = document.createElement("recipe-card");
+    element.data = recipeData[i];
+    main.appendChild(element);
+  }
+
 }
 
 function bindShowMore() {
@@ -65,4 +95,28 @@ function bindShowMore() {
   // in the recipeData object where you stored them/
 
   // Part 2 Explore - TODO
+
+  let dropdown = document.querySelector('button');
+  if(dropdown){
+    dropdown.addEventListener('click', (event) => {
+      let main = document.querySelector('main');
+      if(!showStatus){
+        for(let i = 3; i < 6; i++){
+          let element = document.createElement("recipe-card");
+          element.data = recipeData[i];
+          main.appendChild(element);
+        }
+        showStatus = true;
+        dropdown.textContent = "Show less";
+      }
+      else{
+        for(let i = 0; i < 3; i++){
+          main.removeChild(main.childNodes[6]);
+        }
+        dropdown.textContent = "Show more";
+        showStatus = false;
+      }
+    })
+  }
+
 }

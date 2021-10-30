@@ -3,6 +3,9 @@ class RecipeCard extends HTMLElement {
     // Part 1 Expose - TODO
 
     // You'll want to attach the shadow DOM here
+    super();
+    this.attachShadow({mode: 'open'});
+
   }
 
   set data(data) {
@@ -88,6 +91,89 @@ class RecipeCard extends HTMLElement {
     // Here's the root element that you'll want to attach all of your other elements to
     const card = document.createElement('article');
 
+    // Adding first image
+    let value = searchForKey(data, 'thumbnailUrl');
+    const img1 = document.createElement('img');
+    img1.src = value;
+    value = searchForKey(data, "headline");
+    img1.alt = value;
+    card.appendChild(img1);
+
+    // Adding first paragraph
+    const para1 = document.createElement('p');
+    const link = document.createElement('a');
+    const text0 = document.createTextNode(value);
+    link.appendChild(text0);
+    value = searchForKey(data, 'mainEntityOfPage');
+    if(typeof value === 'object'){
+      value = value['@id'];
+    }
+    link.href = value;
+    para1.className = "title";
+    para1.appendChild(link);
+    card.appendChild(para1);
+
+    // Adding second paragraph 
+    const para2 = document.createElement('p');
+    value = searchForKey(data, 'name');
+    const text = document.createTextNode(value);
+    para2.className = "organization";
+    para2.appendChild(text);
+    card.appendChild(para2);
+  
+    // Adding first div (Rating)
+    value = searchForKey(data, "ratingValue");
+    const div1 = document.createElement('div');
+    div1.className = "rating";
+    if(value != null){
+      // Adding rating value
+      const span1 = document.createElement('span');
+      const text2 = document.createTextNode(value);
+      span1.appendChild(text2);
+      div1.appendChild(span1);
+
+      // Adding stars
+      const img2 = document.createElement('img');
+      const round = Math.round(value);
+      img2.src = `assets/images/icons/${round}-star.svg`;
+      img2.alt = `${round} stars`;
+      div1.appendChild(img2);
+
+      // Adding number of ratings
+      value = searchForKey(data, "ratingCount");
+      const span2 = document.createElement('span');
+      const text3 = document.createTextNode(value);
+      span2.appendChild(text3);
+      div1.appendChild(span2);
+    }
+    else{
+      const span3 = document.createElement('span');
+      const text4 = document.createTextNode("No Reviews");
+      span3.appendChild(text4);
+      div1.appendChild(span3);
+    }
+    card.appendChild(div1);
+
+    // Adding Time
+    value = searchForKey(data, "totalTime");
+    const timeValue = convertTime(value);
+    const time = document.createElement('time');
+    const text5 = document.createTextNode(timeValue);
+    time.appendChild(text5);
+    card.appendChild(time);
+
+    // Adding comma separated list of ingredients
+    value = searchForKey(data, "recipeIngredient");
+    const para3 = document.createElement('p');
+    const ingredients = createIngredientList(value);
+    const text6 = document.createTextNode(ingredients);
+    para3.className = "ingredients";
+    para3.appendChild(text6);
+    card.appendChild(para3);
+
+    this.shadowRoot.appendChild(styleElem);
+    this.shadowRoot.appendChild(card);
+
     // Some functions that will be helpful here:
     //    document.createElement()
     //    document.querySelector()
@@ -101,6 +187,7 @@ class RecipeCard extends HTMLElement {
 
     // Part 1 Expose - TODO
   }
+  
 }
 
 
